@@ -2,7 +2,6 @@ import React from 'react'
 import { FaArrowRight, FaEnvelope, FaFacebookSquare, FaInstagram } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
 
-
 function Footer() {
   return (
     <div className='w-full bg-black text-white p-5'>
