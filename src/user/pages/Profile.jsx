@@ -6,6 +6,8 @@ import Edit from '../components/Edit'
 import UploadBook from '../components/UploadBook'
 import BookStatus from '../components/BookStatus'
 import Purchase from '../components/Purchase'
+import axiosInstance from '../../api/axiosInstance'
+
 
 function Profile() {
   const [currentTab, setCurrentTab] = useState(1)
@@ -28,7 +30,7 @@ function Profile() {
       <Header />
       <div style={{ height: '200px' }} className="bg-black"></div>
       <div style={{ width: '230px', height: '230px', borderRadius: '50%', marginTop: '-130px', marginLeft: '70px' }} className='bg-white p-3'>
-        <img style={{ width: '200px', height: '200px', borderRadius: '50%' }} src={dp == "" ? "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" : dp} alt="user" />
+        <img style={{ width: '200px', height: '200px', borderRadius: '50%' }} src={dp == "" ? "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" : dp.startsWith("https://lh3.googleusercontent.com/")?dp:`${axiosInstance.defaults.baseURL}/uploads/${dp}`} alt="user" />
       </div>
       <div className='md:flex justify-between px-20 mt-5'>
         <div className="flex items-center">

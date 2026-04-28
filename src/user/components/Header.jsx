@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { FaBars, FaFacebookSquare, FaInstagram, FaPowerOff, FaUser } from 'react-icons/fa'
 import { FaGear, FaXTwitter } from 'react-icons/fa6'
 import { Link } from 'react-router-dom'
+import axiosInstance from '../../api/axiosInstance'
 
 function Header() {
   const [toggle, setToggle] = useState(false)
@@ -48,7 +49,7 @@ function Header() {
               <div>
                 {/* profile icon */}
                 <button onClick={()=>setDropdown(!dropdown)} className='shadow-sm rounded ms-5 p-1 hover:bg-gray-100'>
-                  <img width={'40px'} height={'40px'} style={{ borderRadius: '50%' }} src={dp == "" ? "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" : dp} alt="profile icon" />
+                  <img width={'40px'} height={'40px'} style={{ borderRadius: '50%' }} src={dp == "" ? "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" : dp.startsWith("https://lh3.googleusercontent.com/")?dp:`${axiosInstance.defaults.baseURL}/uploads/${dp}`} alt="profile icon" />
                 </button>
                 {/* dropdown menu */}
                 {
@@ -78,7 +79,7 @@ function Header() {
               <div>
                 {/* profile icon */}
                 <button onClick={()=>setDropdown(!dropdown)} className='shadow-sm rounded ms-5 p-1 hover:bg-gray-100'>
-                  <img width={'40px'} height={'40px'} style={{ borderRadius: '50%' }} src={dp == "" ? "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" : dp} alt="profile icon" />
+                  <img width={'40px'} height={'40px'} style={{ borderRadius: '50%' }} src={dp == "" ? "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" : dp.startsWith("https://lh3.googleusercontent.com/")?dp:`${axiosInstance.defaults.baseURL}/uploads/${dp}`} alt="profile icon" />
                 </button>
                 {/* dropdown menu */}
                 {
