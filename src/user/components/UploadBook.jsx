@@ -1,12 +1,17 @@
 import React from 'react'
 import { useState } from 'react'
 import { FaPlus } from 'react-icons/fa'
+import { ToastContainer, toast } from 'react-toastify';
+import { addBookAPI } from '../../services/allAPI';
+
 
 function UploadBook() {
     const [bookDetails, setBookDetails] = useState({
         title: "", author: "", pages: "", imageURL: "", price: "", discountPrice: "", abstract: "", publisher: "", isbn: "", language: "", category: "", uploadImages: []
     })
     const [preview, setPreview] = useState("")
+    const [previewList, setPreviewList] = useState([])
+
     console.log(bookDetails);
 
     const handleUploadBookImage = (e) => {
@@ -16,7 +21,46 @@ function UploadBook() {
         setBookDetails({ ...bookDetails, uploadImages: uploadBookImageArray })
         const url = URL.createObjectURL(imageFile)
         setPreview(url)
+        const demoPreviewList = previewList
+        demoPreviewList.push(url)
+        setPreviewList(demoPreviewList)
     }
+
+    const resetForm = () => {
+        setBookDetails({
+            title: "", author: "", pages: "", imageURL: "", price: "", discountPrice: "", abstract: "", publisher: "", isbn: "", language: "", category: "", uploadImages: []
+        })
+        setPreview("")
+        setPreviewList([])
+    }
+
+    const handleAddBook = async () => {
+        const { title, author, pages, imageURL, price, discountPrice, abstract, publisher, isbn, language, category, uploadImages } = bookDetails
+        if (!title || !author || !imageURL || !pages || !price || !discountPrice || !abstract || !publisher || !isbn || !language || !category || uploadImages.length == 0) {
+            toast.info("Please fill the form completely!!!")
+        } else {
+            // api call
+            const reqBody = new FormData()
+            for (let key in bookDetails) {
+                if (key != "uploadImages") {
+                    reqBody.append(key, bookDetails[key])
+                } else {
+                    bookDetails.uploadImages.forEach(imageFile => {
+                        reqBody.append("uploadImages", imageFile)
+                    })
+                }
+            }
+            const result = await addBookAPI(reqBody)
+            console.log(result);
+            if(result.status==201){
+                toast.success("Book Added Sucessfully...")
+            }else{
+                toast.warning(result.response)
+            }
+            resetForm()
+        }
+    }
+
     return (
         <div className='p-10 my-20 mx-5 bg-gray-200'>
             <h1 className='text-center text-3xl font-medium'>Upload Book Details</h1>
@@ -61,18 +105,28 @@ function UploadBook() {
                     {/* upload book images */}
                     <div className="mb-3 flex justify-center items-center mt-10">
                         <label htmlFor="bookImages">
-                            <input onChange={e=>{handleUploadBookImage(e)}} type="file" id='bookImages' hidden />
-                            <img width={'200px'} height={'200px'} src={preview?preview:"https://th.bing.com/th/id/R.712037bab8634a63b94c4cd1d22dc141?rik=3lotRj1zGK%2b0ag&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f2%2fUpload-Transparent.png&ehk=1NW1RvOIMnDL%2bneLkwtLBWcJFFxE3uETUzRpfFe7RyA%3d&risl=&pid=ImgRaw&r=0"} alt="Book file not found" />
+                            <input onChange={e => { handleUploadBookImage(e) }} type="file" id='bookImages' hidden />
+                            <img width={'200px'} height={'200px'} src={preview ? preview : "https://th.bing.com/th/id/R.712037bab8634a63b94c4cd1d22dc141?rik=3lotRj1zGK%2b0ag&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f2%2fUpload-Transparent.png&ehk=1NW1RvOIMnDL%2bneLkwtLBWcJFFxE3uETUzRpfFe7RyA%3d&risl=&pid=ImgRaw&r=0"} alt="Book file not found" />
                         </label>
 
                     </div>
                     {/* preview uploaded images */}
                     {preview && <div className="flex justify-center items-center mt-10">
-                        <img width={'70px'} height={'70px'} src="https://static-cse.canva.com/blob/1427857/BlueOrangeandYellowCoolMemoir_InspirationalBookCover.jpg" alt="Book file not found" />
-                        <label htmlFor="bookUpload">
-                            <input type="file" id='bookUpload' hidden />
-                            <FaPlus className='text-3xl ms-2' />
-                        </label>
+                        {
+                            previewList?.map((imageURL, index) => (
+                                <img key={`${imageURL}-${index}`} width={'70px'} height={'70px'} className='mx-2' src={imageURL} alt="Book file not found" />
+
+                            )
+                            )}
+                        {
+                            previewList.length < 3 &&
+                            <label htmlFor="bookUpload">
+                                <input onChange={e => handleUploadBookImage(e)} type="file" id='bookUpload' hidden />
+                                <FaPlus className='text-3xl ms-2' />
+                            </label>
+
+                        }
+
 
                     </div>}
                 </div>
@@ -80,9 +134,11 @@ function UploadBook() {
             </div>
             {/* reset & add button */}
             <div className="flex md:justify-end justify-center w-full px-5 mt-10">
-                <button className='bg-gray-600 text-white py-2 px-3 rounded hover:text-gray-600 hover:bg-white'>RESET</button>
-                <button className='bg-blue-600 text-white py-2 px-3 rounded ms-5 hover:text-blue-600 hover:bg-white'>ADD BOOK DETAILS</button>
+                <button onClick={resetForm} className='bg-gray-600 text-white py-2 px-3 rounded hover:text-gray-600 hover:bg-white'>RESET</button>
+                <button onClick={handleAddBook} className='bg-blue-600 text-white py-2 px-3 rounded ms-5 hover:text-blue-600 hover:bg-white'>ADD BOOK DETAILS</button>
             </div>
+            <ToastContainer position='top-center' theme='colored' autoClose={1000} />
+
         </div>
     )
 }
