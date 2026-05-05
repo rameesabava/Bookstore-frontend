@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Header from '../components/Header'
 import Footer from '../../components/Footer'
 import { FaBars } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { getAllBooksAPI } from '../../services/allAPI'
+import { searchContext } from '../../contextAPI/ShareContext'
 
 function Books() {
   const [toggle, setToggle] = useState(false)
@@ -11,6 +12,8 @@ function Books() {
   const [allBooks, setAllBooks] = useState([])
   const [categoryList, setCategoryList] = useState([])
   const [dummyAllBooks, setDummyAllBooks] = useState([])
+    const { searchKey, setSearchKey } = useContext(searchContext)
+  
   //console.log(allBooks);
 
   console.log(categoryList);
@@ -22,10 +25,10 @@ function Books() {
       setToken(userToken)
       getBooks()
     }
-  }, [])
+  }, [searchKey])
 
   const getBooks = async () => {
-    const result = await getAllBooksAPI()
+    const result = await getAllBooksAPI(searchKey)
     // console.log(result);
     if (result.status == 200) {
       setAllBooks(result.data)
@@ -54,7 +57,7 @@ function Books() {
           <div className='flex flex-col justify-center items-center my-5'>
             <h1 className='text-3xl font-bold my-5'>All Books</h1>
             <div className='flex my-5'>
-              <input type="text" className='p-2 border border-gray-200 w-100' placeholder='Search By Book Title' />
+              <input value={searchKey} onChange={(e)=>setSearchKey(e.target.value)} type="text" className='p-2 border border-gray-200 w-100' placeholder='Search By Book Title' />
               <button className='p-2 bg-blue-800 text-white'>Search</button>
             </div>
           </div>

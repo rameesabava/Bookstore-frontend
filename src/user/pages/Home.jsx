@@ -1,25 +1,45 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Header from "../components/Header"
 import Footer from "../../components/Footer"
 import { FaSearch } from 'react-icons/fa'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { getHomePageBooksAPI } from '../../services/allAPI'
+import { searchContext } from '../../contextAPI/ShareContext'
+import { ToastContainer, toast } from 'react-toastify';
+
 
 
 function Home() {
 
-  const [homeBooks,setHomeBooks]=useState([])
+  const { searchKey, setSearchKey } = useContext(searchContext)
+  const [homeBooks, setHomeBooks] = useState([])
+  const navigate = useNavigate()
 
   // console.log(homeBooks);
-  
-  useEffect(()=>{
-    getHomePageBooks()
-  },[])
 
-  const getHomePageBooks = async ()=>{
+  useEffect(() => {
+    getHomePageBooks()
+  }, [])
+
+  const getHomePageBooks = async () => {
     const result = await getHomePageBooksAPI()
-    if(result.status==200){
+    if (result.status == 200) {
       setHomeBooks(result.data)
+    }
+  }
+
+  const handleSearch = () => {
+    if (!searchKey) {
+      toast.warning("Please input book title here!!!")
+    } else if (!sessionStorage.getItem("token")) {
+      toast.warning("Please Login!!!")
+      setTimeout(() => {
+        navigate("/login")
+      }, 2000)
+    } else if (searchKey && sessionStorage.getItem("token")) {
+      navigate("/books")
+    } else {
+      toast.error("Something went wrong!!!")
     }
   }
 
@@ -32,8 +52,8 @@ function Home() {
           <h1 className='text-6xl font-bold'>Wonderful Gifts</h1>
           <p>Gift your family and friends a book</p>
           <div className='mt-9 flex items-center'>
-            <input type="text" placeholder='Search A Book' className='bg-white p-2 rounded-3xl text-black w-100' />
-            <FaSearch className='text-gray-500 cursor-pointer' style={{ marginLeft: '-40px' }} />
+            <input onChange={(e) => setSearchKey(e.target.value)} type="text" placeholder='Search A Book' className='bg-white p-2 rounded-3xl text-black w-100' />
+            <FaSearch onClick={handleSearch} className='text-gray-500 cursor-pointer' style={{ marginLeft: '-40px' }} />
           </div>
         </div>
       </div>
@@ -44,20 +64,20 @@ function Home() {
         <div className='md:grid grid-cols-4 w-full my-10'>
           {/* duplicate according to book */}
           {
-            homeBooks.length>0?
-            homeBooks?.map(book=>(
-              <div key={book?._id} className='shadow rounded p-3 m-4 md:my-0'>
-            <img width={'100%'} height={'300px'} src={book?.imageURL} alt="book" />
-            <div className='flex flex-col justify-center items-center mt-4'>
-              <h2 className='text-blue-700 font-bold text-xl'>{book?.author}</h2>
-              <h3 className='text-lg'>{book?.title}</h3>
-              <p className='font-bold text-red-500'>$ {book?.discountPrice}</p>
-            </div>
+            homeBooks.length > 0 ?
+              homeBooks?.map(book => (
+                <div key={book?._id} className='shadow rounded p-3 m-4 md:my-0'>
+                  <img width={'100%'} height={'300px'} src={book?.imageURL} alt="book" />
+                  <div className='flex flex-col justify-center items-center mt-4'>
+                    <h2 className='text-blue-700 font-bold text-xl'>{book?.author}</h2>
+                    <h3 className='text-lg'>{book?.title}</h3>
+                    <p className='font-bold text-red-500'>$ {book?.discountPrice}</p>
+                  </div>
 
-          </div>
-            ))
-            :
-            <p className='font-bold text-center my-3'>Loading...</p>
+                </div>
+              ))
+              :
+              <p className='font-bold text-center my-3'>Loading...</p>
           }
         </div>
         <div className='text-center my-10'>
@@ -93,6 +113,9 @@ function Home() {
 
       </section>
       <Footer />
+      {/* toaster */}
+      <ToastContainer position='top-center' theme='colored' autoClose={1000} />
+
     </>
   )
 }
