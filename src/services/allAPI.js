@@ -54,3 +54,8 @@ export const deleteUserUploadBookAPI = async (bookId) => {
 export const getSingleBookAPI = async (id) => {
     return await apiService("GET", `/books/${id}`, {})
 }
+
+// http://localhost:3000/books/69f581671f8d3a89b4b6fb3a/buy called by View component when make payment btn clicked
+export const buyBookAPI = async (id) => {
+    return await apiService("PUT", `/books/${id}/buy`, {})
+}
