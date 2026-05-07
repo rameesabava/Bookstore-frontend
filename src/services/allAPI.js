@@ -59,3 +59,23 @@ export const getSingleBookAPI = async (id) => {
 export const buyBookAPI = async (id) => {
     return await apiService("PUT", `/books/${id}/buy`, {})
 }
+
+// admin edit api : called by admin settings component when update button clicked
+export const adminUpdateAPI = async (adminId, adminData) => {
+    return await apiService("PUT", `/profile/${adminId}`, adminData)
+}
+
+// get all users api : called by admin resources component when tab 2 clicked
+export const userListAPI = async () => {
+    return await apiService("GET", `/user-list`, {})
+}
+
+// get all books api : called by admin resources component when tab 1 clicked
+export const bookListAPI = async () => {
+    return await apiService("GET", `/book-list`, {})
+}
+
+// update book status api : called by admin resources component when approve btn clicked
+export const editBookStatusAPI = async (id) => {
+    return await apiService("PUT", `/books/${id}`, {})
+}

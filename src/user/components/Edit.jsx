@@ -123,7 +123,9 @@ function Edit() {
                                     }
                                     <button className='bg-black text-white px-3 py-2 rounded z-53 fixed' style={{ marginLeft: '70px', marginTop: '-15px' }}><FaPen /></button>
                                 </label>
-                                {!imageFileType && <div className='mt-5 text-yellow-500 text-sm'>*Only accept image file</div>}                                {/* username */}
+                                {!imageFileType && 
+                                <div className='mt-5 text-yellow-500 text-sm'>*Only accept image file</div>}                               
+                                 {/* username */}
                                 <div className='mt-10 mb-3 w-full px-5'>
                                     <input onChange={e => setUserDetails({ ...userDetails, username: e.target.value })} value={userDetails.username} type="text" placeholder='Username' className='w-full border border-gray-300 rounded p-2' />
 

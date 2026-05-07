@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { FaBars, FaFacebookSquare, FaInstagram, FaPowerOff, FaUser } from 'react-icons/fa'
 import { FaGear, FaXTwitter } from 'react-icons/fa6'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import axiosInstance from '../../api/axiosInstance'
 
 function Header() {
@@ -10,6 +10,7 @@ function Header() {
   const [dp, setDp] = useState("")
   const [userId, setUserId] = useState("")
   const [dropdown, setDropdown]=useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (sessionStorage.getItem("token") && sessionStorage.getItem("user")) {
@@ -21,6 +22,16 @@ function Header() {
     }
 
   }, [token])
+
+   const logout = ()=>{
+    sessionStorage.clear()
+    setToggle(false)
+    setToken("")
+    setDp("")
+      setUserId("")
+    setDropdown(false)
+    navigate('/')
+  }
 
   return (
     <>
@@ -58,7 +69,7 @@ function Header() {
                 {/* profile link */}
                 <Link to={`/profile/${userId}`} className='flex items-center text-gray-600 text-sm px-3 py-2'><FaGear className='me-1'/>Profile</Link>
                 {/* logout button */}
-                <button className='flex items-center text-gray-600 text-sm px-3 py-2'><FaPowerOff className='me-1'/>Logout</button>
+                <button onClick={logout} className='flex items-center text-gray-600 text-sm px-3 py-2'><FaPowerOff className='me-1'/>Logout</button>
                 </div>
                 }
               </div>
@@ -88,7 +99,7 @@ function Header() {
                 {/* profile link */}
                 <Link to={`/profile/${userId}`} className='flex items-center text-gray-600 text-sm px-3 py-2'><FaGear className='me-1'/>Profile</Link>
                 {/* logout button */}
-                <button className='flex items-center text-gray-600 text-sm px-3 py-2'><FaPowerOff className='me-1'/>Logout</button>
+                <button onClick={logout} className='flex items-center text-gray-600 text-sm px-3 py-2'><FaPowerOff className='me-1'/>Logout</button>
                 </div>
                 }
               </div>
