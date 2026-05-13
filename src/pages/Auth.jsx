@@ -1,5 +1,5 @@
 import { useFormik } from 'formik'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { FaEye, FaEyeSlash, FaUser } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
@@ -7,9 +7,11 @@ import { googleLoginAPI, loginAPI, registerAPI } from '../services/allAPI'
 import { ToastContainer, toast } from 'react-toastify';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
+import { routeContext } from '../contextAPI/RouteGuardContext'
 
 
 function Auth({ insideRegister }) {
+  const { role, setRole, authorisedUser, setAuthorisedUser } = useContext(routeContext)
   const navigate = useNavigate()
   const [togglePasswordType, setTogglePasswordType] = useState(false)
 
@@ -24,72 +26,78 @@ function Auth({ insideRegister }) {
       email: Yup.string().email("Invalid email").required("Email Required"),
       password: Yup.string().required("Password Required")
     }),
-    onSubmit: (values,{resetForm}) => {
+    onSubmit: (values, { resetForm }) => {
       console.log(values);
-      if(insideRegister){
+      if (insideRegister) {
         console.log("register api call");
 
         handleRegister(values)
-      }else{
-                console.log("login api call");
-handleLogin(values)
+      } else {
+        console.log("login api call");
+        handleLogin(values)
       }
-resetForm()
+      resetForm()
     }
   })
 
-  const handleRegister = async (userData)=>{
-const result = await registerAPI(userData)
-console.log(result);
-if(result.status==201){
-  toast.success("Successfully registered.... Please login!!!")
-}else{
-  toast.error(result.response)
-}
-navigate('/login')
+  const handleRegister = async (userData) => {
+    const result = await registerAPI(userData)
+    console.log(result);
+    if (result.status == 201) {
+      toast.success("Successfully registered.... Please login!!!")
+    } else {
+      toast.error(result.response)
+    }
+    navigate('/login')
   }
 
-  const handleLogin = async (userData)=>{
-const result = await loginAPI(userData)
-console.log(result);
-if(result.status==200){
-  toast.success("Login Successful!!!!")
-  sessionStorage.setItem("token",result.data.token)
-  sessionStorage.setItem("user",JSON.stringify(result.data.user))
-  if(result.data.user.role=="admin"){
-    navigate('/admin')
-  }else{
-    navigate('/')
+  const handleLogin = async (userData) => {
+    const result = await loginAPI(userData)
+    console.log(result);
+    if (result.status == 200) {
+      toast.success("Login Successful!!!!")
+      sessionStorage.setItem("token", result.data.token)
+      sessionStorage.setItem("user", JSON.stringify(result.data.user))
+      setAuthorisedUser(true)
+      if (result.data.user.role == "admin") {
+        setRole("admin")
+        navigate('/admin')
+      } else {
+        setRole("user")
+        navigate('/')
+      }
+
+    } else {
+      toast.error(result.response)
+    }
   }
 
-}else{
-  toast.error(result.response)
-}
+  const handleGoogleLogin = async (credentialResponse) => {
+    console.log("Inside handleGoogleLogin");
+    console.log(credentialResponse);
+    const { email, name, picture } = jwtDecode(credentialResponse.credential)
+    console.log(email, name, picture);
+    // api call
+    const result = await googleLoginAPI({ username: name, email, password: "googlePassword", picture })
+    if (result.status == 200) {
+      toast.success("Login Successful!!!!")
+      sessionStorage.setItem("token", result.data.token)
+      sessionStorage.setItem("user", JSON.stringify(result.data.user))
+      setAuthorisedUser(true)
+      setTimeout(() => {
+        if (result.data.user.role == "admin") {
+          setRole("admin")
+          navigate('/admin')
+        } else {
+          setRole("user")
+          navigate('/')
+        }
+      }, 2500);
+
+    }
+
   }
 
-  const handleGoogleLogin = async (credentialResponse)=>{
-     console.log("Inside handleGoogleLogin");
-     console.log(credentialResponse);
-           const {email,name,picture} = jwtDecode(credentialResponse.credential)
-console.log(email,name,picture);
-// api call
-const result = await googleLoginAPI({username:name,email,password:"googlePassword", picture})
-if(result.status==200){
-  toast.success("Login Successful!!!!")
-  sessionStorage.setItem("token",result.data.token)
-  sessionStorage.setItem("user",JSON.stringify(result.data.user))
-  setTimeout(()=>{
-if(result.data.user.role=="admin"){
-    navigate('/admin')
-}else{
-  navigate('/')
-}
-  },2500);
-  
-}
-     
-  }
-  
   return (
     <div className='w-full min-h-screen flex justify-center items-center bg-[url(/landing.png)] bg-cover bg-center text-white'>
       <div className='p-10'>
@@ -148,16 +156,16 @@ if(result.data.user.role=="admin"){
             {/* google authentication */}
             <div className='flex justify-center mt-2 items-center'>
               <GoogleLogin
-    onSuccess={credentialResponse => {
-      handleGoogleLogin(credentialResponse);
+                onSuccess={credentialResponse => {
+                  handleGoogleLogin(credentialResponse);
 
-      
-    }}
-    onError={() => {
-      console.log('Login Failed');
-    }}
-    useOneTap
-  />
+
+                }}
+                onError={() => {
+                  console.log('Login Failed');
+                }}
+                useOneTap
+              />
             </div>
             {!insideRegister &&
               <div className='my-5 text-center'>
@@ -183,7 +191,7 @@ if(result.data.user.role=="admin"){
 
       </div>
       {/* toaster */}
-      <ToastContainer position='top-center' theme='colored' autoClose={1000}/>
+      <ToastContainer position='top-center' theme='colored' autoClose={1000} />
     </div>
   )
 }

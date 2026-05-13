@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { FaBars, FaFacebookSquare, FaInstagram, FaPowerOff, FaUser } from 'react-icons/fa'
 import { FaGear, FaXTwitter } from 'react-icons/fa6'
 import { Link, useNavigate } from 'react-router-dom'
 import axiosInstance from '../../api/axiosInstance'
+import { routeContext } from '../../contextAPI/RouteGuardContext'
 
 function Header() {
   const [toggle, setToggle] = useState(false)
@@ -11,6 +12,8 @@ function Header() {
   const [userId, setUserId] = useState("")
   const [dropdown, setDropdown]=useState(false)
   const navigate = useNavigate()
+
+  const {role, setRole, authoisedUser, setAuthorisedUser} = useContext(routeContext)
 
   useEffect(() => {
     if (sessionStorage.getItem("token") && sessionStorage.getItem("user")) {
@@ -25,6 +28,7 @@ function Header() {
 
    const logout = ()=>{
     sessionStorage.clear()
+    setAuthorisedUser(false)
     setToggle(false)
     setToken("")
     setDp("")
